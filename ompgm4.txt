@@ -1,0 +1,145 @@
+from pymongo import MongoClient
+    
+def get_database():
+    connectionString = "mongodb://127.0.0.1:27017/?directConnection=true"
+
+    client = MongoClient(connectionString)
+
+    return client['empDB']
+
+def printData():
+    dbname = get_database()
+    
+    print("Enter the collection you want to print details from:")
+    col = input()
+
+    collectionName = dbname[col]
+
+    objects = collectionName.find()
+
+    for object in objects:
+        print(object)
+
+def findData():
+    dbname = get_database()
+
+    print("Enter the collection you want to find the details from:")
+    col = input()
+    
+    collectionName = dbname[col]
+
+    print("Enter the condition for the document to be found:")
+    key_value_pairs = []
+    while True:
+        key = input("Enter key (or press Enter to finish): ")
+        if not key:
+            break
+        value = input("Enter value: ")
+        key_value_pairs.append((key, value))
+
+    document = {}
+    for key, value in key_value_pairs:
+        document[key] = value
+
+    results = collectionName.find(document)
+    
+    if results.count() > 0:
+        for result in results:
+            print(result)
+    else:
+        print("Document not found with this condition!")
+
+
+def insert():
+    dbname = get_database()
+
+    print("Enter the collection you want to enter the details into:")
+    col = input()
+    
+    collectionName = dbname[col]
+
+    key_value_pairs = []
+    while True:
+        key = input("Enter key (or press Enter to finish): ")
+        if not key:
+            break
+        value = input("Enter value: ")
+        key_value_pairs.append((key, value))
+
+    document = {}
+    for key, value in key_value_pairs:
+        document[key] = value
+
+    collectionName.insert_one(document)
+
+    print("Document inserted successfully.")
+
+def delete():
+    dbname = get_database()
+
+    print("Enter the collection you want to remove the details from:")
+    col = input()
+    
+    collectionName = dbname[col]
+
+    condition_key  = input("Enter the key for the condition: ")
+    condition_value  = input("Enter the value for the condition: ")
+
+    query = {condition_key : condition_value}
+    result = collectionName.delete_one(query)
+
+    if result.deleted_count > 0:
+        print("Deleted succesfully.")
+    else:
+        print("No document found with given condition!") 
+
+def update():
+    dbname = get_database()
+
+    print("Enter the collection you want to remove the details from:")
+    col = input()
+    
+    collectionName = dbname[col]
+
+    condition_key  = input("Enter the key for the condition: ")
+    condition_value  = input("Enter the value for the condition: ")
+    update_key  = input("Enter the key for the update: ")
+    update_value  = input("Enter the value for the update: ")
+
+    query = {condition_key : condition_value}
+    update = {"$set" : {update_key, update_value}}
+    
+    result = collectionName.update_one(query, update)
+
+    if result.matched_count > 0:
+        print("Updated succesfully.")
+    else:
+        print("No document matched the condition given.") 
+
+if __name__ == "__main__":
+    dbname = get_database()
+    
+    while(True):
+        print("-----Menu-----")
+        print("1. Display Details")
+        print("2. Find a Document")
+        print("2. Insert Details")
+        print("3. Update Details")
+        print("4. Delete Details")
+        print("5.Exit")
+
+        ch = int(input('Enter the choice:\n'))
+
+        if ch == 5:
+            exit
+        else:
+            if ch == 1:
+                printData()
+            if ch == 2:
+                findData()
+            elif ch == 3:
+                insert()
+            elif ch == 4:
+                update()
+            elif ch == 5:
+                delete()
